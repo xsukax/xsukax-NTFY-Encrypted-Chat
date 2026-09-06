@@ -1,0 +1,1145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d1117">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https: http://localhost:* http://127.0.0.1:*; img-src data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>xsukax NTFY Encrypted Chat</title>
+
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#161b22;
+  --panel-soft:#0d1117;
+  --border:#30363d;
+  --border-strong:#484f58;
+  --text:#f0f6fc;
+  --muted:#8b949e;
+  --blue:#2f81f7;
+  --blue-hover:#1f6feb;
+  --green:#238636;
+  --red:#da3633;
+  --mine:#1f6feb;
+  --other:#21262d;
+}
+*{box-sizing:border-box}
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+}
+button,input,textarea{font:inherit}
+button{
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  transition:background-color .12s ease,border-color .12s ease,color .12s ease,box-shadow .12s ease;
+}
+button:disabled{opacity:.55;cursor:not-allowed}
+.hidden{display:none!important}
+.app{
+  height:100%;
+  height:100dvh;
+  display:grid;
+  grid-template-rows:56px 1fr;
+}
+header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 16px;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+}
+.brand{
+  font-weight:600;
+  font-size:15px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:26px;
+  max-width:220px;
+  padding:3px 8px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--bg);
+  color:var(--muted);
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.status{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--muted);
+  font-size:12px;
+  white-space:nowrap;
+}
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#6e7681;
+}
+.dot.ok{background:#3fb950}
+.dot.bad{background:#f85149}
+.shell{
+  min-height:0;
+  display:grid;
+  grid-template-columns:340px minmax(0,1fr);
+}
+aside{
+  min-height:0;
+  overflow:auto;
+  padding:16px;
+  background:var(--bg);
+  border-right:1px solid var(--border);
+}
+main{
+  min-width:0;
+  min-height:0;
+  display:grid;
+  grid-template-rows:1fr auto;
+  background:var(--bg);
+}
+.card{
+  margin-bottom:12px;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--panel);
+}
+.card h3{
+  margin:0 0 12px;
+  font-size:14px;
+  font-weight:600;
+}
+label{
+  display:block;
+  margin:10px 0 6px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:600;
+}
+input,textarea{
+  width:100%;
+  min-height:36px;
+  padding:7px 9px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  outline:none;
+  background:var(--bg);
+  color:var(--text);
+  box-shadow:none;
+}
+input:focus,textarea:focus{
+  border-color:#58a6ff;
+  box-shadow:0 0 0 3px rgba(56,139,253,.3);
+}
+input[readonly]{
+  color:#c9d1d9;
+  background:#0b0f14;
+}
+.row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.row .btn{
+  flex:0 0 auto;
+  max-width:55%;
+}
+.row .btn.grow{
+  flex:1 1 auto;
+}
+.row input{
+  flex:1 1 auto;
+  min-width:0;
+}
+.grow{flex:1 1 auto;min-width:0}
+.btn{
+  min-width:0;
+  min-height:34px;
+  padding:6px 12px;
+  border:1px solid var(--border-strong);
+  border-radius:6px;
+  background:#21262d;
+  color:var(--text);
+  font-weight:600;
+  line-height:20px;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  box-shadow:none;
+  transform:none;
+}
+.btn:hover:not(:disabled){
+  background:#30363d;
+  border-color:#8b949e;
+}
+.btn:active:not(:disabled){
+  background:#282e34;
+  border-color:#8b949e;
+  transform:none;
+  box-shadow:none;
+}
+.btn:focus-visible{
+  outline:2px solid #58a6ff;
+  outline-offset:2px;
+}
+.btn.primary{
+  background:var(--green);
+  border-color:rgba(240,246,252,.1);
+  color:#fff;
+}
+.btn.primary:hover:not(:disabled){background:#2ea043}
+.btn.primary:active:not(:disabled){background:#238636}
+.btn.danger{
+  background:#21262d;
+  border-color:var(--border-strong);
+  color:#f85149;
+}
+.btn.danger:hover:not(:disabled){
+  background:#da3633;
+  border-color:#f85149;
+  color:#fff;
+}
+.btn.ghost{
+  background:transparent;
+  border-color:var(--border);
+  color:var(--muted);
+}
+.btn.ghost:hover:not(:disabled){
+  background:#21262d;
+  color:var(--text);
+}
+.small{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+.notice{
+  padding:10px 12px;
+  border:1px solid #9e6a03;
+  border-radius:6px;
+  background:rgba(187,128,9,.12);
+  color:#d29922;
+  font-size:12px;
+  line-height:1.5;
+}
+.mono{
+  font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,"Liberation Mono",monospace;
+}
+.safety{
+  color:#c9d1d9;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.8px;
+}
+.messages{
+  min-height:0;
+  overflow:auto;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  background:var(--bg);
+}
+.empty{
+  margin:auto;
+  max-width:480px;
+  color:var(--muted);
+  text-align:center;
+  line-height:1.6;
+}
+.msg{
+  align-self:flex-start;
+  max-width:min(76%,720px);
+  padding:9px 11px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--other);
+}
+.msg.mine{
+  align-self:flex-end;
+  border-color:#388bfd;
+  background:#1f3b64;
+}
+.meta{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin-bottom:4px;
+  color:var(--muted);
+  font-size:11px;
+}
+.meta .name{
+  color:var(--text);
+  font-weight:600;
+}
+.body{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.sys{
+  align-self:center;
+  padding:4px 8px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--panel);
+  color:var(--muted);
+  font-size:11px;
+}
+.composer{
+  display:flex;
+  gap:8px;
+  align-items:flex-end;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--border);
+  background:var(--panel);
+}
+.composer textarea{
+  min-height:38px;
+  max-height:140px;
+  resize:none;
+}
+.composer .send{
+  min-width:76px;
+  height:38px;
+}
+details{margin-top:10px}
+.kv{
+  display:grid;
+  grid-template-columns:95px 1fr;
+  gap:6px 8px;
+  margin-top:8px;
+  color:var(--muted);
+  font-size:11px;
+}
+.kv b{color:#c9d1d9}
+dialog{
+  width:min(620px,94vw);
+  max-height:88dvh;
+  padding:0;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--panel);
+  color:var(--text);
+  box-shadow:0 16px 48px rgba(1,4,9,.85);
+}
+dialog::backdrop{background:rgba(1,4,9,.75)}
+.dhead{
+  display:flex;
+  align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
+.dhead h2{
+  margin:0;
+  font-size:16px;
+  font-weight:600;
+}
+.dbody{
+  padding:16px;
+  max-height:calc(88dvh - 58px);
+  overflow:auto;
+}
+hr{
+  margin:16px 0;
+  border:0;
+  border-top:1px solid var(--border);
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  z-index:9999;
+  transform:translateX(-50%) translateY(10px);
+  padding:8px 12px;
+  border:1px solid var(--border-strong);
+  border-radius:6px;
+  background:#21262d;
+  color:var(--text);
+  font-size:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .14s ease,transform .14s ease;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+::selection{background:rgba(56,139,253,.35)}
+.messages,aside,.dbody{
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) transparent;
+}
+#panelToggle{display:none}
+
+/* Tablet: narrower sidebar so the chat keeps room */
+@media(max-width:1100px){
+  .shell{grid-template-columns:300px minmax(0,1fr)}
+  aside{padding:12px}
+}
+@media(max-width:900px){
+  .shell{grid-template-columns:270px minmax(0,1fr)}
+}
+
+/* Phones */
+@media(max-width:780px){
+  .app{grid-template-rows:auto 1fr}
+  header{min-height:52px;padding:8px 10px;flex-wrap:wrap;row-gap:6px}
+  .brand{font-size:14px}
+  .badge{display:none}
+  .status{margin-left:auto}
+  #panelToggle{display:inline-flex;align-items:center;justify-content:center}
+  .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  aside{
+    max-height:52dvh;
+    padding:10px;
+    border-right:0;
+    border-bottom:1px solid var(--border);
+  }
+  /* Collapsing only applies to the stacked phone layout; on wider
+     screens the sidebar always stays visible. */
+  aside.collapsed{display:none}
+  .card{padding:12px}
+  .messages{padding:12px}
+  .msg{max-width:92%}
+  .composer{padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px))}
+  /* 16px inputs stop iOS from auto-zooming on focus */
+  input,textarea{font-size:16px}
+  /* Comfortable touch targets */
+  .btn{min-height:40px;padding:8px 12px}
+  .composer .send{height:40px;min-width:72px}
+}
+@media(max-width:420px){
+  .brand{font-size:13px}
+  .status{font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">🔐 xsukax NTFY Encrypted Chat</div>
+  <span id="serverBadge" class="badge">relay: ntfy.sh</span>
+  <span id="roomBadge" class="badge hidden"></span>
+  <div class="status"><span id="dot" class="dot"></span><span id="status">Ready</span></div>
+  <button id="panelToggle" class="btn ghost" aria-label="Toggle settings panel" aria-expanded="true" aria-controls="sidebar">☰ Panel</button>
+  <button id="aboutBtn" class="btn ghost">About</button>
+</header>
+
+<div class="shell">
+<aside id="sidebar">
+  <div class="card">
+    <h3>Your chat</h3>
+    <label>Display name</label>
+    <input id="name" maxlength="40" autocomplete="nickname" placeholder="Alice">
+
+    <label>NTFY server</label>
+    <input id="server" class="mono" maxlength="240" autocomplete="off" value="ntfy.sh" placeholder="ntfy.sh">
+
+    <label>Room secret</label>
+    <div class="row">
+      <input id="room" class="mono grow" maxlength="80" autocomplete="off" placeholder="Create a room or paste a room code">
+      <button id="newRoom" class="btn">New</button>
+    </div>
+
+    <label>Shared password</label>
+    <div class="row">
+      <input id="password" class="grow" type="password" minlength="20" autocomplete="off" spellcheck="false" placeholder="Use 20+ random characters">
+      <button id="showPassword" class="btn" title="Show/hide password">👁</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button id="generatePassword" class="btn grow">Generate strong password</button>
+      <button id="copyPassword" class="btn">Copy</button>
+    </div>
+
+    <button id="join" class="btn primary" style="width:100%;margin-top:12px">Enter room</button>
+    <button id="leave" class="btn danger hidden" style="width:100%;margin-top:12px">Leave room</button>
+  </div>
+
+  <div id="shareCard" class="card hidden">
+    <h3>Invite the second user</h3>
+    <div class="row">
+      <button id="copyLink" class="btn grow">Copy one-click invite</button>
+      <button id="copyCode" class="btn">Room code</button>
+    </div>
+    <button id="copyEverything" class="btn" style="width:100%;margin-top:8px">Copy link + password</button>
+    <div class="small" style="margin-top:9px">
+      The one-click invite carries the NTFY server, room secret, and shared password in the URL fragment (#). On opening an invite, this app imports those values and immediately removes the fragment from the address bar. Anyone who obtains the invite can decrypt the room, so share it privately.
+    </div>
+  </div>
+
+  <div id="relayCard" class="card hidden">
+    <h3>Encrypted relay</h3>
+    <div class="small">
+      Both users can open the actual NTFY topic. You should only see encrypted message bodies beginning with <span class="mono">xc1.</span>, not chat text or display names.
+    </div>
+    <div class="row" style="margin-top:9px">
+      <button id="openRelay" class="btn grow">Open NTFY topic</button>
+      <button id="copyRelay" class="btn">Copy URL</button>
+    </div>
+    <button id="openRawRelay" class="btn" style="width:100%;margin-top:8px">Open encrypted JSON feed</button>
+    <label>Relay topic URL</label>
+    <input id="relayUrl" class="mono" readonly>
+  </div>
+
+  <div id="securityCard" class="card hidden">
+    <h3>Safety code</h3>
+    <div id="safetyCode" class="safety mono">—</div>
+    <div class="small" style="margin-top:6px">
+      Both users should see the same code. It confirms that the room secret and password match.
+    </div>
+  </div>
+
+  <div id="passwordCard" class="card hidden">
+    <h3>Shared password</h3>
+    <div class="small">
+      The password remains available only in this browser session so you can copy it again after joining.
+    </div>
+    <button id="copyActivePassword" class="btn" style="width:100%;margin-top:10px">Copy shared password</button>
+  </div>
+
+  <div class="notice">
+    No account, API key or database is needed. You may use ntfy.sh or your own compatible NTFY server. Chat contents and names are encrypted before being sent to the relay.
+  </div>
+
+  <details>
+    <summary class="small" style="cursor:pointer">Technical details</summary>
+    <div class="kv" style="margin-top:9px">
+      <b>Protocol</b><span>xsukax chat v2 (use the same app version on both devices)</span>
+      <b>Encryption</b><span>AES-256-GCM</span>
+      <b>Password KDF</b><span>PBKDF2-HMAC-SHA-256, 600,000 rounds; 20+ random characters recommended</span>
+      <b>Realtime</b><span>NTFY SSE stream</span>
+      <b>History</b><span>Temporary relay cache, roughly 12 hours</span>
+      <b>Password</b><span>Browser memory only</span>
+      <b>Topic</b><span>Derived from random room secret; message key is password-derived</span>
+    </div>
+  </details>
+</aside>
+
+<main>
+  <div id="messages" class="messages">
+    <div id="empty" class="empty">
+      <div style="font-size:38px;margin-bottom:8px">💬</div>
+      Click <b>New</b>, share the invite link and password with the second person, then both press <b>Enter room</b>.
+    </div>
+  </div>
+  <div class="composer">
+    <textarea id="message" rows="1" disabled maxlength="2500" placeholder="Enter a room first…"></textarea>
+    <button id="send" class="btn primary send" disabled>Send</button>
+  </div>
+</main>
+</div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<dialog id="about">
+  <div class="dhead">
+    <h2>About this chat</h2>
+    <button id="closeAbout" class="btn ghost" style="margin-left:auto">Close</button>
+  </div>
+  <div class="dbody small">
+    <p><b>Zero service setup:</b> by default this page uses ntfy.sh, but you can enter another compatible NTFY server. No account is required when that server permits anonymous publish/subscribe.</p>
+    <p><b>End-to-end encrypted content:</b> your display name and message are encrypted locally. NTFY receives only an opaque encrypted envelope on a pseudorandom topic derived from the random room secret.</p>
+    <p><b>Not permanent storage:</b> ntfy caches messages temporarily to support reconnects. This client asks for up to the recent 12-hour cache when joining.</p>
+    <p><b>Metadata still exists:</b> the relay can observe IP/network metadata, the derived topic, message times and ciphertext sizes. The public ntfy.sh relay is not an anonymous or access-controlled channel; confidentiality comes from this app's encryption and the secrecy of your invite/password.</p>
+    <p><b>Security boundary:</b> message contents are end-to-end encrypted in the browser, but no browser app can honestly promise “100% security.” A compromised device/browser, leaked invite/password, malicious extension, weak password, or denial-of-service at the relay can still defeat privacy or availability.</p>
+    <p><b>Best effort:</b> the free public relay has rate limits and no uptime guarantee. This is ideal for lightweight private chat, not a replacement for a production messenger.</p>
+    <hr>
+    <p>If you open this HTML locally, both users need a copy of the same file. If you host it on any HTTPS static website, the invite-link button becomes the easiest way to join from another device.</p>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+
+const KDF_ROUNDS = 600000;
+const MAX_RELAY_BYTES = 3900;
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+const $ = id => document.getElementById(id);
+
+const ui = {
+  name:$("name"), server:$("server"), room:$("room"), password:$("password"), join:$("join"), leave:$("leave"),
+  newRoom:$("newRoom"), generatePassword:$("generatePassword"), copyPassword:$("copyPassword"),
+  showPassword:$("showPassword"), copyLink:$("copyLink"), copyCode:$("copyCode"),
+  copyEverything:$("copyEverything"), shareCard:$("shareCard"), securityCard:$("securityCard"),
+  passwordCard:$("passwordCard"), copyActivePassword:$("copyActivePassword"), toast:$("toast"),
+  relayCard:$("relayCard"), relayUrl:$("relayUrl"), openRelay:$("openRelay"),
+  copyRelay:$("copyRelay"), openRawRelay:$("openRawRelay"), serverBadge:$("serverBadge"),
+  safetyCode:$("safetyCode"), messages:$("messages"), empty:$("empty"), message:$("message"),
+  send:$("send"), dot:$("dot"), status:$("status"), roomBadge:$("roomBadge"),
+  about:$("about"), aboutBtn:$("aboutBtn"), closeAbout:$("closeAbout"),
+  panelToggle:$("panelToggle"), sidebar:$("sidebar")
+};
+
+let roomSecret = "";
+let roomKey = null;
+let relayTopic = "";
+let eventSource = null;
+let joined = false;
+let seenRelayIds = new Set();
+let seenPayloadIds = new Set();
+let activePasswordForShare = "";
+let ntfyBase = "https://ntfy.sh";
+let sessionGeneration = 0;
+let receiveChain = Promise.resolve();
+
+const deviceId = (() => {
+  // Per-tab/session sender identity avoids cross-tab "You" collisions and
+  // does not create a long-lived identifier on the device.
+  let id = sessionStorage.getItem("xchat.deviceId");
+  if (!id) {
+    id = randomToken(16);
+    sessionStorage.setItem("xchat.deviceId", id);
+  }
+  return id;
+})();
+
+ui.name.value = localStorage.getItem("xchat.name") || "";
+
+function setStatus(text, kind="") {
+  ui.status.textContent = text;
+  ui.dot.className = "dot" + (kind ? " " + kind : "");
+}
+
+function randomToken(bytes=24) {
+  const a = crypto.getRandomValues(new Uint8Array(bytes));
+  return b64url(a);
+}
+function b64url(bytes) {
+  let s = "";
+  for (let i=0;i<bytes.length;i+=0x8000) s += String.fromCharCode(...bytes.subarray(i,i+0x8000));
+  return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function unb64url(s) {
+  s = s.replace(/-/g,"+").replace(/_/g,"/");
+  while (s.length % 4) s += "=";
+  const raw = atob(s);
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+function concatBytes(...arrays) {
+  const len = arrays.reduce((n,a)=>n+a.length,0);
+  const out = new Uint8Array(len);
+  let p=0;
+  for (const a of arrays) { out.set(a,p); p+=a.length; }
+  return out;
+}
+async function sha256(data) {
+  if (typeof data === "string") data = enc.encode(data);
+  return new Uint8Array(await crypto.subtle.digest("SHA-256", data));
+}
+function makeUuid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return randomToken(18);
+}
+function cleanRoom(v) {
+  return (v || "").trim().replace(/[^A-Za-z0-9_-]/g,"").slice(0,80);
+}
+function normalizeServer(v) {
+  let raw=(v || "").trim();
+  if (!raw) raw="ntfy.sh";
+  if (!/^https?:\/\//i.test(raw)) raw="https://"+raw;
+  const u=new URL(raw);
+  if (!["http:","https:"].includes(u.protocol)) {
+    throw new Error("NTFY server must use HTTPS.");
+  }
+  const host=u.hostname.toLowerCase();
+  const loopback=(host==="localhost" || host==="127.0.0.1" || host==="::1");
+  if (u.protocol!=="https:" && !loopback) {
+    throw new Error("For security, remote NTFY servers must use HTTPS. HTTP is allowed only for localhost/127.0.0.1.");
+  }
+  u.hash="";
+  u.search="";
+  return u.href.replace(/\/$/,"");
+}
+function displayServer(base) {
+  try { return new URL(base).host + new URL(base).pathname.replace(/\/$/,""); }
+  catch { return base; }
+}
+function relayTopicUrl() {
+  if (!relayTopic) return "";
+  return `${ntfyBase}/${encodeURIComponent(relayTopic)}`;
+}
+function relayRawUrl() {
+  const u=relayTopicUrl();
+  return u ? `${u}/json?poll=1&since=12h` : "";
+}
+function displayTime(unixSeconds, fallbackMs) {
+  const d = unixSeconds ? new Date(unixSeconds*1000) : new Date(fallbackMs || Date.now());
+  return d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+}
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const t=document.createElement("textarea");
+    t.value=text;t.style.position="fixed";t.style.opacity="0";
+    document.body.appendChild(t);t.focus();t.select();document.execCommand("copy");t.remove();
+  }
+}
+let toastTimer=null;
+function showToast(text="Copied") {
+  clearTimeout(toastTimer);
+  ui.toast.textContent=text;
+  ui.toast.classList.add("show");
+  toastTimer=setTimeout(()=>ui.toast.classList.remove("show"),1400);
+}
+
+async function deriveRoom(password, secret) {
+  // Normalize Unicode so visually identical passwords derive the same key.
+  const normalizedPassword = String(password).normalize("NFKC");
+
+  // AES key is password-derived.
+  const salt = await sha256("xsukax-chat-room-salt-v2|" + secret);
+  const base = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(normalizedPassword),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+  const keyBytes = new Uint8Array(await crypto.subtle.deriveBits({
+    name:"PBKDF2",
+    hash:"SHA-256",
+    salt,
+    iterations:KDF_ROUNDS
+  }, base, 256));
+
+  const aes = await crypto.subtle.importKey(
+    "raw",
+    keyBytes,
+    {name:"AES-GCM"},
+    false,
+    ["encrypt","decrypt"]
+  );
+
+  // Relay topic depends only on the high-entropy random room secret.
+  // This guarantees both users subscribe to the same NTFY topic even if
+  // one mistypes the password; decryption will then clearly report a mismatch.
+  const topicHash = await sha256("xsukax-chat-topic-v2|" + secret);
+  // No app-specific prefix: the topic looks like any other random NTFY
+  // topic, so the relay topic list reveals no recognizable pattern.
+  const topic = b64url(topicHash);
+
+  // Safety code proves both room AND password match.
+  const safetyHash = await sha256(
+    concatBytes(enc.encode("xsukax-chat-safety-v2|" + secret + "|"), keyBytes)
+  );
+  const hx = [...safetyHash.slice(0,8)]
+    .map(b=>b.toString(16).padStart(2,"0").toUpperCase())
+    .join("");
+  const safety = hx.match(/.{1,4}/g).join("-");
+
+  keyBytes.fill(0);
+  return {aes, topic, safety};
+}
+
+function aad() {
+  return enc.encode("xsukax-chat-envelope-v2|" + relayTopic);
+}
+
+async function encryptEnvelope(payload) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const plain = enc.encode(JSON.stringify(payload));
+  const cipher = new Uint8Array(await crypto.subtle.encrypt({
+    name:"AES-GCM", iv, additionalData:aad()
+  }, roomKey, plain));
+  return "xc1." + b64url(iv) + "." + b64url(cipher);
+}
+
+async function decryptEnvelope(envelope) {
+  const parts = String(envelope).split(".");
+  if (parts.length !== 3 || parts[0] !== "xc1") throw new Error("foreign message");
+  const iv = unb64url(parts[1]);
+  const cipher = unb64url(parts[2]);
+  if (iv.length !== 12) throw new Error("bad iv");
+  const plain = await crypto.subtle.decrypt({
+    name:"AES-GCM", iv, additionalData:aad()
+  }, roomKey, cipher);
+  const p = JSON.parse(dec.decode(plain));
+  if (!p || p.v !== 1 || typeof p.id !== "string" || p.id.length>100 ||
+      typeof p.sid !== "string" || p.sid.length>100 ||
+      typeof p.name !== "string" || p.name.length>40 ||
+      typeof p.text !== "string" || p.text.length>2500 ||
+      typeof p.time !== "number" || !Number.isFinite(p.time)) {
+    throw new Error("bad payload");
+  }
+  return p;
+}
+
+function clearMessages() {
+  seenRelayIds.clear(); seenPayloadIds.clear();
+  ui.messages.innerHTML = "";
+  const e=document.createElement("div");
+  e.className="empty";e.id="empty";
+  e.textContent="Connected. Messages from the relay's recent cache will appear here.";
+  ui.messages.appendChild(e);ui.empty=e;
+}
+function addSystem(text) {
+  const e=document.createElement("div");e.className="sys";e.textContent=text;
+  ui.messages.appendChild(e);ui.messages.scrollTop=ui.messages.scrollHeight;
+}
+function addMessage(payload, relayTime) {
+  if (seenPayloadIds.has(payload.id)) return;
+  seenPayloadIds.add(payload.id);
+  if (ui.empty) ui.empty.classList.add("hidden");
+
+  const box=document.createElement("div");
+  const mine=payload.sid===deviceId;
+  box.className="msg"+(mine?" mine":"");
+
+  const meta=document.createElement("div");meta.className="meta";
+  const n=document.createElement("span");n.className="name";n.textContent=mine?"You":(String(payload.name||"Other user").slice(0,40));
+  const t=document.createElement("span");t.textContent=displayTime(relayTime,payload.time);
+  meta.append(n,t);
+
+  const body=document.createElement("div");body.className="body";body.textContent=payload.text;
+  box.append(meta,body);ui.messages.appendChild(box);
+  ui.messages.scrollTop=ui.messages.scrollHeight;
+}
+
+function currentSharedPassword() {
+  return (ui.password.value || activePasswordForShare || "").normalize("NFKC");
+}
+function inviteUrl() {
+  const secret=cleanRoom(ui.room.value);
+  const password=currentSharedPassword();
+  if (!secret || !password) return "";
+  let base;
+  try { base=normalizeServer(ui.server.value); } catch { return ""; }
+
+  const u=new URL(location.href);
+  const p=new URLSearchParams();
+  p.set("v","2");
+  p.set("r",secret);
+  p.set("s",base);
+  p.set("p",password); // URL fragment only: not sent in HTTP requests
+  u.hash=p.toString();
+  return u.href;
+}
+function stripSensitiveFragment() {
+  if (!location.hash) return;
+  try {
+    const u=new URL(location.href);
+    u.hash="";
+    history.replaceState(null,"",u.href);
+  } catch {
+    try { history.replaceState(null,"",location.pathname+location.search); } catch {}
+  }
+}
+function readRoomHash() {
+  const rawHash=location.hash.replace(/^#/,"");
+  if (!rawHash) {
+    try { ui.serverBadge.textContent="relay: "+displayServer(normalizeServer(ui.server.value)); } catch {}
+    return;
+  }
+  const p=new URLSearchParams(rawHash);
+  const r=cleanRoom(p.get("r"));
+  const s=p.get("s");
+  const pw=p.get("p");
+
+  if (s) {
+    try { ui.server.value=normalizeServer(s); }
+    catch(err) {
+      console.warn("Rejected invite relay:",err);
+      setTimeout(()=>alert("The invite specified an insecure or invalid NTFY server, so it was not accepted. Please verify the relay address."),0);
+    }
+  }
+  if (r) {
+    ui.room.value=r;
+    ui.shareCard.classList.remove("hidden");
+  }
+  if (pw) ui.password.value=String(pw).normalize("NFKC");
+
+  // Do not leave room/password secrets in browser history or the address bar.
+  stripSensitiveFragment();
+
+  try {
+    ui.serverBadge.textContent="relay: "+displayServer(normalizeServer(ui.server.value));
+  } catch {}
+}
+
+function createRoom() {
+  try {
+    normalizeServer(ui.server.value); // validate before generating a room
+    const r=randomToken(24);
+    ui.room.value=r;
+    if (!ui.password.value) ui.password.value=randomToken(18);
+    ui.shareCard.classList.remove("hidden");
+    showToast("New encrypted room created");
+  } catch(err) {
+    alert(err.message || String(err));
+  }
+}
+function setJoined(on) {
+  joined=on;
+  ui.name.disabled=on;
+  ui.server.disabled=on;
+  ui.room.disabled=on;
+  ui.password.disabled=on;
+  ui.newRoom.disabled=on;
+  ui.generatePassword.disabled=on;
+  ui.showPassword.disabled=on;
+
+  ui.join.classList.toggle("hidden",on);
+  ui.leave.classList.toggle("hidden",!on);
+  ui.message.disabled=!on;
+  ui.send.disabled=!on;
+  ui.message.placeholder=on?"Type an encrypted message…":"Enter a room first…";
+
+  ui.securityCard.classList.toggle("hidden",!on);
+  ui.passwordCard.classList.toggle("hidden",!on);
+  ui.relayCard.classList.toggle("hidden",!on);
+  ui.roomBadge.classList.toggle("hidden",!on);
+
+  if (on) ui.relayUrl.value=relayTopicUrl();
+  else ui.relayUrl.value="";
+}
+
+async function processRelayData(data, generation) {
+  if (generation!==sessionGeneration || !joined || !roomKey) return;
+  let item;
+  try { item=JSON.parse(data); } catch { return; }
+  if (!item || item.event!=="message" || !item.id || item.topic!==relayTopic || seenRelayIds.has(item.id)) return;
+
+  if (seenRelayIds.size>5000) seenRelayIds.clear();
+  if (seenPayloadIds.size>5000) seenPayloadIds.clear();
+  seenRelayIds.add(item.id);
+
+  const relayBody=String(item.message || "");
+  try {
+    const payload=await decryptEnvelope(relayBody);
+    if (generation!==sessionGeneration) return;
+    addMessage(payload,item.time);
+  } catch {
+    if (generation!==sessionGeneration) return;
+    if (relayBody.startsWith("xc1.")) {
+      addSystem("Encrypted message received but could not be decrypted. Compare the safety code and shared password.");
+    }
+  }
+}
+function connectStream() {
+  if (eventSource) eventSource.close();
+  const generation=sessionGeneration;
+  const url = `${ntfyBase}/${encodeURIComponent(relayTopic)}/sse?since=12h`;
+  const source = new EventSource(url);
+  eventSource = source;
+
+  source.onopen = () => {
+    if (generation===sessionGeneration && source===eventSource) setStatus("Connected", "ok");
+  };
+  source.onerror = () => {
+    if (generation===sessionGeneration && source===eventSource) setStatus("Reconnecting…", "bad");
+  };
+  source.onmessage = ev => {
+    receiveChain = receiveChain
+      .then(() => processRelayData(ev.data,generation))
+      .catch(err => console.error("Relay processing error:",err));
+  };
+}
+
+async function joinRoom() {
+  if (!crypto.subtle) return alert("This browser does not provide Web Crypto here. Open the page over HTTPS or localhost in a modern browser.");
+  const name=ui.name.value.trim().slice(0,40);
+  const secret=cleanRoom(ui.room.value);
+  const password=ui.password.value.normalize("NFKC");
+
+  if (!name) return alert("Enter your display name.");
+  if (secret.length<20) return alert("Create a new room or enter the complete room code.");
+  if (password.length<20) return alert("Use at least 20 password characters. The Generate button creates a strong random password.");
+
+  ui.join.disabled=true;
+  setStatus("Preparing encryption…");
+  try {
+    localStorage.setItem("xchat.name",name);
+    ntfyBase=normalizeServer(ui.server.value);
+    ui.server.value=ntfyBase;
+    ui.serverBadge.textContent="relay: "+displayServer(ntfyBase);
+    const derived=await deriveRoom(password,secret);
+    sessionGeneration++;
+    receiveChain=Promise.resolve();
+    roomSecret=secret;roomKey=derived.aes;relayTopic=derived.topic;
+    activePasswordForShare=password;
+    ui.safetyCode.textContent=derived.safety;
+    ui.password.value="";
+    clearMessages();setJoined(true);
+    ui.roomBadge.textContent="Room "+secret.slice(0,7)+"…";
+    stripSensitiveFragment();
+    connectStream();
+    if (isMobileLayout()) setPanelCollapsed(true);
+    ui.message.focus();
+  } catch(err) {
+    console.error(err);
+    alert("Could not enter the room: "+(err.message||err));
+    setStatus("Error","bad");
+  } finally {
+    ui.join.disabled=false;
+  }
+}
+
+function setPanelCollapsed(collapsed) {
+  ui.sidebar.classList.toggle("collapsed",collapsed);
+  ui.panelToggle.setAttribute("aria-expanded",String(!collapsed));
+}
+function isMobileLayout() {
+  return window.matchMedia("(max-width:780px)").matches;
+}
+
+function leaveRoom() {
+  sessionGeneration++;
+  receiveChain=Promise.resolve();
+  if (eventSource) { eventSource.close();eventSource=null; }
+  roomKey=null;relayTopic="";roomSecret="";activePasswordForShare="";
+  clearMessages();setJoined(false);ui.safetyCode.textContent="—";setStatus("Ready");
+  stripSensitiveFragment();
+  setPanelCollapsed(false);
+}
+
+async function sendMessage() {
+  if (!joined || !roomKey || !relayTopic) return;
+  const text=ui.message.value.trim();
+  if (!text) return;
+
+  ui.send.disabled=true;
+  try {
+    const payload={
+      v:1,id:makeUuid(),sid:deviceId,
+      name:ui.name.value.trim().slice(0,40),
+      text,time:Date.now()
+    };
+    const envelope=await encryptEnvelope(payload);
+    const bytes=new Blob([envelope]).size;
+    if (bytes>MAX_RELAY_BYTES) {
+      throw new Error(`Encrypted message is ${bytes} bytes. Keep it shorter so it fits the relay's 4 KB message limit.`);
+    }
+
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),15000);
+    let res;
+    try {
+      res=await fetch(`${ntfyBase}/${encodeURIComponent(relayTopic)}`, {
+        method:"POST",
+        headers:{"Content-Type":"text/plain;charset=UTF-8"},
+        body:envelope,
+        signal:controller.signal,
+        cache:"no-store",
+        referrerPolicy:"no-referrer"
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+    if (!res.ok) {
+      let detail="";
+      try { detail=await res.text(); } catch {}
+      if (res.status===429) throw new Error("ntfy rate limit reached. Wait a little before sending again.");
+      throw new Error(`Relay returned HTTP ${res.status}${detail ? ": "+detail.slice(0,160) : ""}`);
+    }
+    ui.message.value="";resizeComposer();ui.message.focus();
+  } catch(err) {
+    console.error(err);
+    const detail=(err && err.name==="AbortError") ? "Relay request timed out." : (err.message||err);
+    alert("Message was not sent: "+detail);
+  } finally {
+    ui.send.disabled=false;
+  }
+}
+function resizeComposer() {
+  ui.message.style.height="auto";
+  ui.message.style.height=Math.min(140,ui.message.scrollHeight)+"px";
+}
+
+ui.newRoom.addEventListener("click",createRoom);
+ui.generatePassword.addEventListener("click",()=>ui.password.value=randomToken(18));
+ui.showPassword.addEventListener("click",()=>ui.password.type=ui.password.type==="password"?"text":"password");
+ui.copyPassword.addEventListener("click",async()=>{
+  const pw=currentSharedPassword();
+  if(!pw) return alert("No shared password is available yet.");
+  await copyText(pw);showToast("Password copied");
+});
+ui.copyLink.addEventListener("click",async()=>{
+  const u=inviteUrl();if(!u)return;
+  await copyText(u);showToast("Invite link copied");
+});
+ui.copyCode.addEventListener("click",async()=>{
+  const r=cleanRoom(ui.room.value);if(!r)return;
+  await copyText(r);showToast("Room code copied");
+});
+ui.copyEverything.addEventListener("click",async()=>{
+  const u=inviteUrl();const pw=currentSharedPassword();
+  if(!u || !pw) return alert("Create a room and generate/enter a password first.");
+  await copyText(`xsukax NTFY Encrypted Chat\n\nInvite:\n${u}\n\nShared password:\n${pw}\n\nNTFY server:\n${normalizeServer(ui.server.value)}`);
+  showToast("Invitation copied");
+});
+ui.copyActivePassword.addEventListener("click",async()=>{
+  if(!activePasswordForShare) return alert("No active shared password is available.");
+  await copyText(activePasswordForShare);
+  showToast("Shared password copied");
+});
+ui.join.addEventListener("click",joinRoom);
+ui.leave.addEventListener("click",leaveRoom);
+ui.send.addEventListener("click",sendMessage);
+ui.message.addEventListener("input",resizeComposer);
+ui.message.addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();if(!ui.send.disabled)sendMessage();}
+});
+ui.room.addEventListener("input",()=>{
+  const r=cleanRoom(ui.room.value);
+  ui.shareCard.classList.toggle("hidden",!r);
+});
+ui.server.addEventListener("change",()=>{
+  try {
+    const b=normalizeServer(ui.server.value);
+    ui.server.value=b;
+    ui.serverBadge.textContent="relay: "+displayServer(b);
+    // Keep server selection in the UI only. Secrets are added only to a copied invite URL.
+  } catch(err) {
+    alert(err.message || String(err));
+  }
+});
+ui.openRelay.addEventListener("click",()=>{
+  const u=relayTopicUrl(); if(u) window.open(u,"_blank","noopener,noreferrer");
+});
+ui.copyRelay.addEventListener("click",async()=>{
+  const u=relayTopicUrl(); if(!u)return;
+  await copyText(u); showToast("Relay URL copied");
+});
+ui.openRawRelay.addEventListener("click",()=>{
+  const u=relayRawUrl(); if(u) window.open(u,"_blank","noopener,noreferrer");
+});
+ui.aboutBtn.addEventListener("click",()=>ui.about.showModal());
+ui.closeAbout.addEventListener("click",()=>ui.about.close());
+ui.panelToggle.addEventListener("click",()=>{
+  setPanelCollapsed(!ui.sidebar.classList.contains("collapsed"));
+});
+
+window.addEventListener("beforeunload",()=>{sessionGeneration++;if(eventSource)eventSource.close();roomKey=null;activePasswordForShare="";});
+
+readRoomHash();
+setJoined(false);
+if (!crypto.subtle) setStatus("HTTPS required","bad");
+else setStatus("Ready");
+</script>
+</body>
+</html>
