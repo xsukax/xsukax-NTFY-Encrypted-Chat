@@ -60,7 +60,7 @@ No installation, package manager, framework, account, API key, or application se
 
 ### 🔐 OpenPGP / GPG Features
 
-* 🔏 OpenPGP / PGP message encryption using `OpenPGP.js 5.10.2`
+* 🔏 OpenPGP / PGP message encryption using `OpenPGP.js 6.3.1`
 * 🔑 Shared OpenPGP private-key mode for both chat participants
 * 🗝️ No separate public-key import or exchange required
 * 🔄 Public key component derived internally from the shared private key
@@ -122,7 +122,7 @@ The GPG / PGP application currently uses:
 | Component | Implementation |
 |---|---|
 | Encryption standard | OpenPGP / PGP |
-| OpenPGP library | OpenPGP.js 5.10.2 |
+| OpenPGP library | OpenPGP.js 6.3.1 |
 | Key model | Shared PGP private key used by both users |
 | Encryption key | Public component derived internally from the shared private key |
 | Decryption key | Shared OpenPGP private key |
