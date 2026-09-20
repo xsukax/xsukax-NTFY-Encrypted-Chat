@@ -82,6 +82,44 @@ Encrypted relay messages use a format similar to:
 xc1.<iv>.<ciphertext>
 ```
 
+
+The GPG / PGP application currently uses:
+
+| Component | Implementation |
+|---|---|
+| Encryption standard | OpenPGP / PGP |
+| OpenPGP library | OpenPGP.js 5.10.2 |
+| Key model | Shared PGP private key used by both users |
+| Encryption key | Public component derived internally from the shared private key |
+| Decryption key | Shared OpenPGP private key |
+| Signing | Shared OpenPGP private key |
+| Signature verification | Public component derived internally from the same shared private key |
+| Default generated key type | ECC / Curve25519 |
+| Private-key passphrase | Optional; supports protected and passphrase-less private keys |
+| Message format | Binary OpenPGP packet |
+| Relay encoding | Base64URL with `xpgp1.` prefix |
+| Topic hashing | SHA-256 |
+| Verification-code hashing | SHA-256 |
+| Random generation | Browser `crypto.getRandomValues()` |
+| Cryptography implementation | OpenPGP.js with browser cryptographic capabilities |
+| Private-key storage | Not stored in `localStorage`; held only during the active browser session |
+| Transport | NTFY over HTTPS / SSE |
+| Relay visibility | NTFY receives only the OpenPGP-encrypted message envelope |
+
+### Key Model
+
+Both users use the same OpenPGP private key.
+
+The application does not require users to import or exchange a separate public key. The public component needed for standard OpenPGP encryption is derived internally from the shared private key.
+
+```text
+Shared OpenPGP Private Key
+        │
+        ├── Private component → Decryption and signing
+        │
+        └── Public component  → Encryption and signature verification
+```
+
 The plaintext message and display name are contained inside the encrypted payload.
 
 The ntfy topic itself is derived from a cryptographically random room secret using SHA-256, producing a pseudorandom topic instead of a readable room name.
