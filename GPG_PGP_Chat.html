@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0d1117">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://unpkg.com/openpgp@5.10.2/dist/openpgp.min.js; style-src 'unsafe-inline'; connect-src https: http://localhost:* http://127.0.0.1:*; img-src data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>xsukax NTFY GPG/PGP Encrypted Chat</title>
+
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#161b22;
+  --panel-soft:#0d1117;
+  --border:#30363d;
+  --border-strong:#484f58;
+  --text:#f0f6fc;
+  --muted:#8b949e;
+  --blue:#2f81f7;
+  --blue-hover:#1f6feb;
+  --green:#238636;
+  --red:#da3633;
+  --mine:#1f6feb;
+  --other:#21262d;
+}
+*{box-sizing:border-box}
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+}
+button,input,textarea{font:inherit}
+button{
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
+  transition:background-color .12s ease,border-color .12s ease,color .12s ease,box-shadow .12s ease;
+}
+button:disabled{opacity:.55;cursor:not-allowed}
+.hidden{display:none!important}
+.app{
+  height:100%;
+  height:100dvh;
+  display:grid;
+  grid-template-rows:56px 1fr;
+}
+header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:0 16px;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+}
+.brand{
+  font-weight:600;
+  font-size:15px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:26px;
+  max-width:220px;
+  padding:3px 8px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--bg);
+  color:var(--muted);
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.status{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:var(--muted);
+  font-size:12px;
+  white-space:nowrap;
+}
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#6e7681;
+}
+.dot.ok{background:#3fb950}
+.dot.bad{background:#f85149}
+.shell{
+  min-height:0;
+  display:grid;
+  grid-template-columns:340px minmax(0,1fr);
+}
+aside{
+  min-height:0;
+  overflow:auto;
+  padding:16px;
+  background:var(--bg);
+  border-right:1px solid var(--border);
+}
+main{
+  min-width:0;
+  min-height:0;
+  display:grid;
+  grid-template-rows:1fr auto;
+  background:var(--bg);
+}
+.card{
+  margin-bottom:12px;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--panel);
+}
+.card h3{
+  margin:0 0 12px;
+  font-size:14px;
+  font-weight:600;
+}
+label{
+  display:block;
+  margin:10px 0 6px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:600;
+}
+input,textarea{
+  width:100%;
+  min-height:36px;
+  padding:7px 9px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  outline:none;
+  background:var(--bg);
+  color:var(--text);
+  box-shadow:none;
+}
+input:focus,textarea:focus{
+  border-color:#58a6ff;
+  box-shadow:0 0 0 3px rgba(56,139,253,.3);
+}
+input[readonly]{
+  color:#c9d1d9;
+  background:#0b0f14;
+}
+.row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.row .btn{
+  flex:0 0 auto;
+  max-width:55%;
+}
+.row .btn.grow{
+  flex:1 1 auto;
+}
+.row input{
+  flex:1 1 auto;
+  min-width:0;
+}
+.grow{flex:1 1 auto;min-width:0}
+.btn{
+  min-width:0;
+  min-height:34px;
+  padding:6px 12px;
+  border:1px solid var(--border-strong);
+  border-radius:6px;
+  background:#21262d;
+  color:var(--text);
+  font-weight:600;
+  line-height:20px;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  box-shadow:none;
+  transform:none;
+}
+.btn:hover:not(:disabled){
+  background:#30363d;
+  border-color:#8b949e;
+}
+.btn:active:not(:disabled){
+  background:#282e34;
+  border-color:#8b949e;
+  transform:none;
+  box-shadow:none;
+}
+.btn:focus-visible{
+  outline:2px solid #58a6ff;
+  outline-offset:2px;
+}
+.btn.primary{
+  background:var(--green);
+  border-color:rgba(240,246,252,.1);
+  color:#fff;
+}
+.btn.primary:hover:not(:disabled){background:#2ea043}
+.btn.primary:active:not(:disabled){background:#238636}
+.btn.danger{
+  background:#21262d;
+  border-color:var(--border-strong);
+  color:#f85149;
+}
+.btn.danger:hover:not(:disabled){
+  background:#da3633;
+  border-color:#f85149;
+  color:#fff;
+}
+.btn.ghost{
+  background:transparent;
+  border-color:var(--border);
+  color:var(--muted);
+}
+.btn.ghost:hover:not(:disabled){
+  background:#21262d;
+  color:var(--text);
+}
+.small{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+.notice{
+  padding:10px 12px;
+  border:1px solid #9e6a03;
+  border-radius:6px;
+  background:rgba(187,128,9,.12);
+  color:#d29922;
+  font-size:12px;
+  line-height:1.5;
+}
+.mono{
+  font-family:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,"Liberation Mono",monospace;
+}
+.safety{
+  color:#c9d1d9;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.8px;
+}
+.messages{
+  min-height:0;
+  overflow:auto;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  background:var(--bg);
+}
+.empty{
+  margin:auto;
+  max-width:480px;
+  color:var(--muted);
+  text-align:center;
+  line-height:1.6;
+}
+.msg{
+  align-self:flex-start;
+  max-width:min(76%,720px);
+  padding:9px 11px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--other);
+}
+.msg.mine{
+  align-self:flex-end;
+  border-color:#388bfd;
+  background:#1f3b64;
+}
+.meta{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin-bottom:4px;
+  color:var(--muted);
+  font-size:11px;
+}
+.meta .name{
+  color:var(--text);
+  font-weight:600;
+}
+.body{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.sys{
+  align-self:center;
+  padding:4px 8px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--panel);
+  color:var(--muted);
+  font-size:11px;
+}
+.composer{
+  display:flex;
+  gap:8px;
+  align-items:flex-end;
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--border);
+  background:var(--panel);
+}
+.composer textarea{
+  min-height:38px;
+  max-height:140px;
+  resize:none;
+}
+.composer .send{
+  min-width:76px;
+  height:38px;
+}
+details{margin-top:10px}
+.kv{
+  display:grid;
+  grid-template-columns:95px 1fr;
+  gap:6px 8px;
+  margin-top:8px;
+  color:var(--muted);
+  font-size:11px;
+}
+.kv b{color:#c9d1d9}
+dialog{
+  width:min(620px,94vw);
+  max-height:88dvh;
+  padding:0;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--panel);
+  color:var(--text);
+  box-shadow:0 16px 48px rgba(1,4,9,.85);
+}
+dialog::backdrop{background:rgba(1,4,9,.75)}
+.dhead{
+  display:flex;
+  align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+}
+.dhead h2{
+  margin:0;
+  font-size:16px;
+  font-weight:600;
+}
+.dbody{
+  padding:16px;
+  max-height:calc(88dvh - 58px);
+  overflow:auto;
+}
+hr{
+  margin:16px 0;
+  border:0;
+  border-top:1px solid var(--border);
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  z-index:9999;
+  transform:translateX(-50%) translateY(10px);
+  padding:8px 12px;
+  border:1px solid var(--border-strong);
+  border-radius:6px;
+  background:#21262d;
+  color:var(--text);
+  font-size:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .14s ease,transform .14s ease;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+::selection{background:rgba(56,139,253,.35)}
+.messages,aside,.dbody{
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) transparent;
+}
+#panelToggle{display:none}
+
+/* Tablet: narrower sidebar so the chat keeps room */
+@media(max-width:1100px){
+  .shell{grid-template-columns:300px minmax(0,1fr)}
+  aside{padding:12px}
+}
+@media(max-width:900px){
+  .shell{grid-template-columns:270px minmax(0,1fr)}
+}
+
+/* Phones */
+@media(max-width:780px){
+  .app{grid-template-rows:auto 1fr}
+  header{min-height:52px;padding:8px 10px;flex-wrap:wrap;row-gap:6px}
+  .brand{font-size:14px}
+  .badge{display:none}
+  .status{margin-left:auto}
+  #panelToggle{display:inline-flex;align-items:center;justify-content:center}
+  .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  aside{
+    max-height:52dvh;
+    padding:10px;
+    border-right:0;
+    border-bottom:1px solid var(--border);
+  }
+  /* Collapsing only applies to the stacked phone layout; on wider
+     screens the sidebar always stays visible. */
+  aside.collapsed{display:none}
+  .card{padding:12px}
+  .messages{padding:12px}
+  .msg{max-width:92%}
+  .composer{padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px))}
+  /* 16px inputs stop iOS from auto-zooming on focus */
+  input,textarea{font-size:16px}
+  /* Comfortable touch targets */
+  .btn{min-height:40px;padding:8px 12px}
+  .composer .send{height:40px;min-width:72px}
+}
+@media(max-width:420px){
+  .brand{font-size:13px}
+  .status{font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+
+.keyarea{
+  min-height:118px;
+  resize:vertical;
+  font:11px/1.4 ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,"Liberation Mono",monospace;
+}
+.fingerprint{
+  padding:8px 9px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  background:var(--bg);
+  color:#c9d1d9;
+  font:11px/1.5 ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,"Liberation Mono",monospace;
+  overflow-wrap:anywhere;
+}
+.good{color:#3fb950}
+.warn{color:#d29922}
+.file-input{display:none}
+
+</style>
+
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">🔐 xsukax NTFY GPG/PGP Encrypted Chat</div>
+  <span id="serverBadge" class="badge">relay: ntfy.sh</span>
+  <span id="roomBadge" class="badge hidden"></span>
+  <div class="status"><span id="dot" class="dot"></span><span id="status">Ready</span></div>
+  <button id="panelToggle" class="btn ghost" aria-label="Toggle settings panel" aria-expanded="true" aria-controls="sidebar">☰ Panel</button>
+  <button id="aboutBtn" class="btn ghost">About</button>
+</header>
+
+<div class="shell">
+
+<aside id="sidebar">
+  <div class="card">
+    <h3>Your chat</h3>
+    <label>Display name</label>
+    <input id="name" maxlength="40" autocomplete="nickname" placeholder="Alice">
+
+    <label>NTFY server</label>
+    <input id="server" class="mono" maxlength="240" autocomplete="off" value="ntfy.sh" placeholder="ntfy.sh">
+
+    <label>Room secret</label>
+    <div class="row">
+      <input id="room" class="mono grow" maxlength="80" autocomplete="off" placeholder="Create a room or paste a room code">
+      <button id="newRoom" class="btn">New</button>
+    </div>
+
+    <button id="join" class="btn primary" style="width:100%;margin-top:12px">Enter encrypted room</button>
+    <button id="leave" class="btn danger hidden" style="width:100%;margin-top:12px">Leave room</button>
+  </div>
+
+  <div class="card">
+    <h3>Shared GPG / PGP private key</h3>
+    <div class="small">
+      Both users must load the <b>same OpenPGP private key</b>. No public key is entered, exchanged, or placed in the invite. The app derives the key's public component internally only when OpenPGP encryption requires it.
+    </div>
+
+    <label>Shared private key</label>
+    <textarea id="privateKeyArmored" class="keyarea" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="-----BEGIN PGP PRIVATE KEY BLOCK-----"></textarea>
+    <input id="privateKeyFile" class="file-input" type="file" accept=".asc,.pgp,.gpg,.key,.txt,application/pgp-keys,application/octet-stream,text/plain">
+    <div class="row" style="margin-top:8px">
+      <button id="loadPrivateFile" class="btn grow">Load shared private-key file</button>
+      <button id="clearPrivate" class="btn">Clear</button>
+    </div>
+
+    <label>Private-key passphrase <span class="small">(optional)</span></label>
+    <div class="row">
+      <input id="keyPassphrase" class="grow" type="password" autocomplete="off" spellcheck="false" placeholder="Leave blank for a passphrase-less key">
+      <button id="showKeyPassphrase" class="btn" title="Show/hide passphrase">👁</button>
+    </div>
+    <div class="small" style="margin-top:6px">
+      If the shared private key is protected, both users need its passphrase. Passphrase-less private keys work with this field blank. The passphrase is used locally and then cleared from the form.
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <button id="unlockSharedKey" class="btn grow">Unlock / inspect shared key</button>
+    </div>
+    <div id="sharedFingerprint" class="fingerprint" style="margin-top:8px">Shared-key fingerprint: —</div>
+
+    <hr>
+    <div class="small">
+      Need a key? Generate one Curve25519 OpenPGP private key here, save it securely, and give the <b>same private-key file</b> (and passphrase, if used) to the other participant through a trusted channel.
+    </div>
+    <button id="generateKeyPair" class="btn" style="width:100%;margin-top:9px">Generate shared OpenPGP private key</button>
+    <div id="generatedKeyActions" class="hidden" style="margin-top:8px">
+      <button id="savePrivateKey" class="btn" style="width:100%">Save shared private key</button>
+      <button id="saveRevocation" class="btn" style="width:100%;margin-top:8px">Save revocation certificate</button>
+    </div>
+  </div>
+
+  <div id="shareCard" class="card hidden">
+    <h3>Invite the second user</h3>
+    <div class="row">
+      <button id="copyLink" class="btn grow">Copy one-click room invite</button>
+      <button id="copyCode" class="btn">Room code</button>
+    </div>
+    <div class="small" style="margin-top:9px">
+      The invite contains only the NTFY server and random room secret. It never contains the shared private key or its passphrase. Give the second user the same private-key file through a separate trusted channel.
+    </div>
+  </div>
+
+  <div id="relayCard" class="card hidden">
+    <h3>OpenPGP encrypted relay</h3>
+    <div class="small">
+      NTFY receives only application-wrapped binary OpenPGP packets beginning with <span class="mono">xpgp1.</span>. Display names and message text are inside the signed, encrypted PGP payload.
+    </div>
+    <div class="row" style="margin-top:9px">
+      <button id="openRelay" class="btn grow">Open NTFY topic</button>
+      <button id="copyRelay" class="btn">Copy URL</button>
+    </div>
+    <button id="openRawRelay" class="btn" style="width:100%;margin-top:8px">Open encrypted JSON feed</button>
+    <label>Relay topic URL</label>
+    <input id="relayUrl" class="mono" readonly>
+  </div>
+
+  <div id="securityCard" class="card hidden">
+    <h3>Conversation verification</h3>
+    <div id="safetyCode" class="safety mono">—</div>
+    <div class="small" style="margin-top:6px">
+      Both users should see the same code. It is derived from the room secret and the shared private key's OpenPGP fingerprint.
+    </div>
+  </div>
+
+  <div class="notice">
+    No account, API key or database is needed. NTFY is only the relay. Both users load the same private key locally; message confidentiality comes from OpenPGP encryption, while signatures prove possession of that shared key rather than identifying an individual participant.
+  </div>
+
+  <details>
+    <summary class="small" style="cursor:pointer">Technical details</summary>
+    <div class="kv" style="margin-top:9px">
+      <b>Protocol</b><span>xsukax NTFY PGP chat v1</span>
+      <b>OpenPGP</b><span>OpenPGP.js 5.10.2</span>
+      <b>Encryption</b><span>One shared private key is supplied by both users; its public component is derived internally for OpenPGP encryption</span>
+      <b>Signing</b><span>Messages are signed with the same shared private key; signatures authenticate the shared key, not an individual participant</span>
+      <b>Key types</b><span>Compatible OpenPGP private keys supported by OpenPGP.js; generated keys use Curve25519</span>
+      <b>Private key</b><span>Loaded locally by each user; never placed in the room invite or transmitted to NTFY</span>
+      <b>Realtime</b><span>NTFY SSE stream</span>
+      <b>History</b><span>Temporary relay cache, requested for the recent 12 hours</span>
+      <b>Topic</b><span>SHA-256-derived from a high-entropy random room secret; the key is independent of the topic</span>
+    </div>
+  </details>
+</aside>
+
+
+<main>
+  <div id="messages" class="messages">
+    <div id="empty" class="empty">
+      <div style="font-size:38px;margin-bottom:8px">💬</div>
+      Click <b>New</b>, share the invite link and password with the second person, then both press <b>Enter room</b>.
+    </div>
+  </div>
+  <div class="composer">
+    <textarea id="message" rows="1" disabled maxlength="2500" placeholder="Enter a PGP-encrypted room first…"></textarea>
+    <button id="send" class="btn primary send" disabled>Send</button>
+  </div>
+</main>
+</div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+
+<dialog id="about">
+  <div class="dhead">
+    <h2>About xsukax NTFY GPG/PGP Encrypted Chat</h2>
+    <button id="closeAbout" class="btn ghost" style="margin-left:auto">Close</button>
+  </div>
+  <div class="dbody small">
+    <p><b>Shared-private-key design:</b> both participants load the same OpenPGP private key. The interface does not require a public key. OpenPGP encryption itself mathematically uses the corresponding public component, so the app derives that component internally from the loaded private key and never asks either user to exchange it.</p>
+    <p><b>Protected and unprotected keys:</b> a passphrase-protected private key is unlocked locally. A passphrase-less private key is used directly. The passphrase is cleared from the form after a successful unlock.</p>
+    <p><b>Encryption and signing:</b> every payload is signed with the shared private key and encrypted to the public component derived from that same key before transmission to NTFY. Either participant can therefore decrypt the full conversation history while they possess the shared private key.</p>
+    <p><b>Identity limitation:</b> because both users possess the same private signing key, an OpenPGP signature can prove only that the message was produced by someone holding the shared key. It cannot cryptographically distinguish user A from user B. The displayed name and per-session sender marker are convenience metadata inside the encrypted payload.</p>
+    <p><b>Key distribution:</b> never put the private key or passphrase in the room invite. Transfer them to the other participant through a separate trusted channel. Anyone obtaining the shared private key can read existing relay history that was encrypted to that key and can generate valid messages.</p>
+    <p><b>Metadata:</b> NTFY can still observe network metadata, the derived topic, message times and ciphertext sizes. It does not receive the private key or plaintext from this app.</p>
+    <p><b>CDN trust:</b> this build loads pinned OpenPGP.js 5.10.2 from unpkg. For higher assurance, self-host the reviewed library and tighten the Content Security Policy.</p>
+    <p><b>Relay availability:</b> public ntfy.sh has rate limits and no uptime guarantee. You can use your own HTTPS-compatible NTFY server.</p>
+  </div>
+</dialog>
+
+
+
+<script src="https://unpkg.com/openpgp@5.10.2/dist/openpgp.min.js"></script>
+<script>
+"use strict";
+
+const MAX_RELAY_BYTES = 3900;
+const MAX_MESSAGE_CHARS = 2500;
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+const $ = id => document.getElementById(id);
+
+const ui = {
+  name:$('name'), server:$('server'), room:$('room'), join:$('join'), leave:$('leave'),
+  newRoom:$('newRoom'), shareCard:$('shareCard'), securityCard:$('securityCard'),
+  relayCard:$('relayCard'), relayUrl:$('relayUrl'), openRelay:$('openRelay'),
+  copyRelay:$('copyRelay'), openRawRelay:$('openRawRelay'), serverBadge:$('serverBadge'),
+  safetyCode:$('safetyCode'), messages:$('messages'), empty:$('empty'), message:$('message'),
+  send:$('send'), dot:$('dot'), status:$('status'), roomBadge:$('roomBadge'),
+  about:$('about'), aboutBtn:$('aboutBtn'), closeAbout:$('closeAbout'),
+  panelToggle:$('panelToggle'), sidebar:$('sidebar'),
+  privateKeyArmored:$('privateKeyArmored'), privateKeyFile:$('privateKeyFile'),
+  loadPrivateFile:$('loadPrivateFile'), clearPrivate:$('clearPrivate'),
+  keyPassphrase:$('keyPassphrase'), showKeyPassphrase:$('showKeyPassphrase'),
+  unlockSharedKey:$('unlockSharedKey'), sharedFingerprint:$('sharedFingerprint'),
+  generateKeyPair:$('generateKeyPair'), generatedKeyActions:$('generatedKeyActions'),
+  savePrivateKey:$('savePrivateKey'), saveRevocation:$('saveRevocation'),
+  copyLink:$('copyLink'), copyCode:$('copyCode')
+};
+
+let roomSecret = '';
+let relayTopic = '';
+let eventSource = null;
+let joined = false;
+let seenRelayIds = new Set();
+let seenPayloadIds = new Set();
+let ntfyBase = 'https://ntfy.sh';
+let sessionGeneration = 0;
+let receiveChain = Promise.resolve();
+
+let sharedPrivateKey = null;
+let sharedPublicKey = null; // derived internally; never entered/exchanged by users
+let sharedFingerprintRaw = '';
+let generatedRevocationCertificate = '';
+let generatedPrivateArmored = '';
+
+const deviceId = (() => {
+  let id=sessionStorage.getItem('xpgp.deviceId');
+  if(!id){ id=randomToken(16); sessionStorage.setItem('xpgp.deviceId',id); }
+  return id;
+})();
+
+ui.name.value = localStorage.getItem('xchat.name') || '';
+ui.message.maxLength = MAX_MESSAGE_CHARS;
+
+function setStatus(text, kind='') {
+  ui.status.textContent=text;
+  ui.dot.className='dot'+(kind?' '+kind:'');
+}
+function randomToken(bytes=24) {
+  const a=crypto.getRandomValues(new Uint8Array(bytes));
+  return b64url(a);
+}
+function b64url(bytes) {
+  let s='';
+  for(let i=0;i<bytes.length;i+=0x8000) s+=String.fromCharCode(...bytes.subarray(i,i+0x8000));
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function unb64url(s) {
+  s=String(s||'').replace(/-/g,'+').replace(/_/g,'/');
+  while(s.length%4) s+='=';
+  const raw=atob(s);
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
+}
+async function sha256(data) {
+  if(typeof data==='string') data=enc.encode(data);
+  return new Uint8Array(await crypto.subtle.digest('SHA-256',data));
+}
+function makeUuid() { return crypto.randomUUID ? crypto.randomUUID() : randomToken(18); }
+function cleanRoom(v) { return (v||'').trim().replace(/[^A-Za-z0-9_-]/g,'').slice(0,80); }
+function normalizeServer(v) {
+  let raw=(v||'').trim();
+  if(!raw) raw='ntfy.sh';
+  if(!/^https?:\/\//i.test(raw)) raw='https://'+raw;
+  const u=new URL(raw);
+  if(!['http:','https:'].includes(u.protocol)) throw new Error('NTFY server must use HTTP or HTTPS.');
+  const host=u.hostname.toLowerCase();
+  const loopback=(host==='localhost'||host==='127.0.0.1'||host==='::1');
+  if(u.protocol!=='https:'&&!loopback) throw new Error('For security, remote NTFY servers must use HTTPS. HTTP is allowed only for localhost/127.0.0.1.');
+  u.hash=''; u.search='';
+  return u.href.replace(/\/$/,'');
+}
+function displayServer(base) {
+  try { const u=new URL(base); return u.host+u.pathname.replace(/\/$/,''); }
+  catch { return base; }
+}
+function relayTopicUrl() { return relayTopic ? `${ntfyBase}/${encodeURIComponent(relayTopic)}` : ''; }
+function relayRawUrl() { const u=relayTopicUrl(); return u ? `${u}/json?poll=1&since=12h` : ''; }
+function displayTime(unixSeconds,fallbackMs) {
+  const d=unixSeconds?new Date(unixSeconds*1000):new Date(fallbackMs||Date.now());
+  return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+function formatFingerprint(fp) {
+  return String(fp||'').replace(/\s+/g,'').toUpperCase().match(/.{1,4}/g)?.join(' ')||'—';
+}
+function safeFileStem(v) { return (v||'xsukax-shared-pgp').trim().replace(/[^A-Za-z0-9._-]+/g,'_').slice(0,60)||'xsukax-shared-pgp'; }
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const t=document.createElement('textarea'); t.value=text; t.style.position='fixed'; t.style.opacity='0';
+    document.body.appendChild(t); t.focus(); t.select(); document.execCommand('copy'); t.remove();
+  }
+}
+function downloadText(filename,text,type='application/pgp-keys') {
+  const blob=new Blob([text],{type}); const u=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=u; a.download=filename; a.rel='noopener';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+let toastTimer=null;
+function showToast(text='Copied') {
+  clearTimeout(toastTimer); const toast=$('toast'); toast.textContent=text; toast.classList.add('show');
+  toastTimer=setTimeout(()=>toast.classList.remove('show'),1500);
+}
+function ensureOpenPGP() {
+  if(!window.openpgp) throw new Error('OpenPGP.js 5.10.2 did not load. Check network/CSP or self-host the pinned library.');
+}
+
+async function parseSharedPrivateKey() {
+  ensureOpenPGP();
+  const armored=ui.privateKeyArmored.value.trim();
+  if(!armored) throw new Error('Load or paste the shared PGP private key first.');
+  let key=await openpgp.readPrivateKey({armoredKey:armored});
+  if(!key.isDecrypted()) {
+    const passphrase=ui.keyPassphrase.value;
+    if(!passphrase) throw new Error('This private key is passphrase-protected. Enter its passphrase.');
+    key=await openpgp.decryptKey({privateKey:key,passphrase});
+  }
+  await key.getSigningKey();
+  await key.getDecryptionKeys();
+  return key;
+}
+async function unlockSharedIdentity() {
+  const key=await parseSharedPrivateKey();
+  sharedPrivateKey=key;
+  sharedPublicKey=key.toPublic();
+  sharedFingerprintRaw=sharedPublicKey.getFingerprint().toUpperCase();
+  ui.sharedFingerprint.textContent='Shared-key fingerprint: '+formatFingerprint(sharedFingerprintRaw);
+  ui.sharedFingerprint.classList.add('good');
+  ui.keyPassphrase.value='';
+  return key;
+}
+async function importPrivateKeyFile(file) {
+  ensureOpenPGP();
+  if(!file) return '';
+  const bytes=new Uint8Array(await file.arrayBuffer());
+  const maybeText=dec.decode(bytes);
+  const armored=/-----BEGIN PGP PRIVATE KEY BLOCK-----/.test(maybeText);
+  const key=armored ? await openpgp.readPrivateKey({armoredKey:maybeText.trim()}) : await openpgp.readPrivateKey({binaryKey:bytes});
+  return key.armor();
+}
+async function deriveConversation(secret) {
+  const topicHash=await sha256('xsukax-pgp-shared-topic-v1|'+secret);
+  const topic=b64url(topicHash);
+  const verifyHash=await sha256('xsukax-pgp-shared-verify-v1|'+secret+'|'+sharedFingerprintRaw);
+  const hx=[...verifyHash.slice(0,10)].map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join('');
+  return {topic,safety:hx.match(/.{1,4}/g).join('-')};
+}
+
+async function encryptEnvelope(payload) {
+  ensureOpenPGP();
+  const message=await openpgp.createMessage({text:JSON.stringify(payload)});
+  const encrypted=await openpgp.encrypt({
+    message,
+    encryptionKeys:sharedPublicKey,
+    signingKeys:sharedPrivateKey,
+    format:'binary'
+  });
+  return 'xpgp1.'+b64url(encrypted);
+}
+async function decryptEnvelope(envelope) {
+  ensureOpenPGP();
+  const parts=String(envelope).split('.');
+  if(parts.length!==2||parts[0]!=='xpgp1') throw new Error('foreign message');
+  const message=await openpgp.readMessage({binaryMessage:unb64url(parts[1])});
+  const result=await openpgp.decrypt({
+    message,
+    decryptionKeys:sharedPrivateKey,
+    verificationKeys:sharedPublicKey,
+    expectSigned:true,
+    format:'utf8'
+  });
+  if(!result.signatures||result.signatures.length<1) throw new Error('missing signature');
+  for(const sig of result.signatures) await sig.verified;
+  const p=JSON.parse(result.data);
+  if(!p||p.v!==2||typeof p.id!=='string'||p.id.length>100||
+     typeof p.sid!=='string'||p.sid.length>100||
+     typeof p.name!=='string'||p.name.length>40||
+     typeof p.text!=='string'||p.text.length>MAX_MESSAGE_CHARS||
+     typeof p.time!=='number'||!Number.isFinite(p.time)) throw new Error('bad payload');
+  return p;
+}
+
+function clearMessages() {
+  seenRelayIds.clear(); seenPayloadIds.clear(); ui.messages.innerHTML='';
+  const e=document.createElement('div'); e.className='empty'; e.id='empty';
+  e.textContent="Connected. Signed OpenPGP messages from the relay's recent cache will appear here.";
+  ui.messages.appendChild(e); ui.empty=e;
+}
+function addSystem(text) {
+  const e=document.createElement('div'); e.className='sys'; e.textContent=text;
+  ui.messages.appendChild(e); ui.messages.scrollTop=ui.messages.scrollHeight;
+}
+function addMessage(payload,relayTime) {
+  if(seenPayloadIds.has(payload.id)) return;
+  seenPayloadIds.add(payload.id); if(ui.empty) ui.empty.classList.add('hidden');
+  const mine=payload.sid===deviceId;
+  const box=document.createElement('div'); box.className='msg'+(mine?' mine':'');
+  const meta=document.createElement('div'); meta.className='meta';
+  const n=document.createElement('span'); n.className='name'; n.textContent=mine?'You':String(payload.name||'Other user').slice(0,40);
+  const t=document.createElement('span'); t.textContent=displayTime(relayTime,payload.time);
+  const sig=document.createElement('span'); sig.textContent='✓ shared-key signature'; sig.title='Signature verified with the shared OpenPGP key';
+  meta.append(n,t,sig);
+  const body=document.createElement('div'); body.className='body'; body.textContent=payload.text;
+  box.append(meta,body); ui.messages.appendChild(box); ui.messages.scrollTop=ui.messages.scrollHeight;
+}
+
+function inviteUrl() {
+  const secret=cleanRoom(ui.room.value);
+  if(!secret) throw new Error('Create or enter a room first.');
+  const base=normalizeServer(ui.server.value);
+  const u=new URL(location.href); const p=new URLSearchParams();
+  p.set('v','pgp-shared-1'); p.set('r',secret); p.set('s',base);
+  u.hash=p.toString();
+  return u.href;
+}
+function stripSensitiveFragment() {
+  if(!location.hash) return;
+  try { const u=new URL(location.href); u.hash=''; history.replaceState(null,'',u.href); }
+  catch { try { history.replaceState(null,'',location.pathname+location.search); } catch {} }
+}
+function readRoomHash() {
+  const rawHash=location.hash.replace(/^#/,'');
+  if(!rawHash) { try { ui.serverBadge.textContent='relay: '+displayServer(normalizeServer(ui.server.value)); } catch {} return; }
+  const p=new URLSearchParams(rawHash); const r=cleanRoom(p.get('r')); const srv=p.get('s');
+  if(srv) {
+    try { ui.server.value=normalizeServer(srv); }
+    catch(err) { console.warn('Rejected invite relay:',err); setTimeout(()=>alert('The invite specified an insecure or invalid NTFY server.'),0); }
+  }
+  if(r) { ui.room.value=r; ui.shareCard.classList.remove('hidden'); }
+  stripSensitiveFragment();
+  try { ui.serverBadge.textContent='relay: '+displayServer(normalizeServer(ui.server.value)); } catch {}
+}
+function createRoom() {
+  try { normalizeServer(ui.server.value); ui.room.value=randomToken(24); ui.shareCard.classList.remove('hidden'); showToast('New shared-key PGP room created'); }
+  catch(err) { alert(err.message||String(err)); }
+}
+function setJoined(on) {
+  joined=on;
+  ui.name.disabled=on; ui.server.disabled=on; ui.room.disabled=on; ui.newRoom.disabled=on;
+  ui.privateKeyArmored.disabled=on; ui.keyPassphrase.disabled=on; ui.loadPrivateFile.disabled=on;
+  ui.generateKeyPair.disabled=on; ui.unlockSharedKey.disabled=on;
+  ui.join.classList.toggle('hidden',on); ui.leave.classList.toggle('hidden',!on);
+  ui.message.disabled=!on; ui.send.disabled=!on;
+  ui.message.placeholder=on?'Type a shared-key PGP-encrypted message…':'Enter a PGP-encrypted room first…';
+  ui.securityCard.classList.toggle('hidden',!on); ui.relayCard.classList.toggle('hidden',!on); ui.roomBadge.classList.toggle('hidden',!on);
+  ui.relayUrl.value=on?relayTopicUrl():'';
+}
+async function processRelayData(data,generation) {
+  if(generation!==sessionGeneration||!joined||!sharedPrivateKey) return;
+  let item; try { item=JSON.parse(data); } catch { return; }
+  if(!item||item.event!=='message'||!item.id||item.topic!==relayTopic||seenRelayIds.has(item.id)) return;
+  if(seenRelayIds.size>5000) seenRelayIds.clear(); if(seenPayloadIds.size>5000) seenPayloadIds.clear();
+  seenRelayIds.add(item.id); const relayBody=String(item.message||'');
+  try { const payload=await decryptEnvelope(relayBody); if(generation!==sessionGeneration)return; addMessage(payload,item.time); }
+  catch(err) {
+    if(generation!==sessionGeneration)return;
+    if(relayBody.startsWith('xpgp1.')) { console.warn('PGP receive failure:',err); addSystem('OpenPGP message received but it could not be decrypted or its shared-key signature could not be verified. Confirm both users loaded the same private key.'); }
+  }
+}
+function connectStream() {
+  if(eventSource) eventSource.close();
+  const generation=sessionGeneration; const source=new EventSource(`${ntfyBase}/${encodeURIComponent(relayTopic)}/sse?since=12h`); eventSource=source;
+  source.onopen=()=>{ if(generation===sessionGeneration&&source===eventSource)setStatus('Connected','ok'); };
+  source.onerror=()=>{ if(generation===sessionGeneration&&source===eventSource)setStatus('Reconnecting…','bad'); };
+  source.onmessage=ev=>{ receiveChain=receiveChain.then(()=>processRelayData(ev.data,generation)).catch(err=>console.error('Relay processing error:',err)); };
+}
+async function joinRoom() {
+  if(!crypto.subtle) return alert('Web Crypto is unavailable. Open the page over HTTPS or localhost in a modern browser.');
+  if(!window.openpgp) return alert('OpenPGP.js did not load. Check network access to unpkg.com or self-host the pinned library.');
+  const name=ui.name.value.trim().slice(0,40); const secret=cleanRoom(ui.room.value);
+  if(!name) return alert('Enter your display name.');
+  if(secret.length<20) return alert('Create a new room or enter the complete room code.');
+  ui.join.disabled=true; setStatus('Unlocking shared PGP key…');
+  try {
+    localStorage.setItem('xchat.name',name); ntfyBase=normalizeServer(ui.server.value); ui.server.value=ntfyBase;
+    ui.serverBadge.textContent='relay: '+displayServer(ntfyBase);
+    if(!sharedPrivateKey) await unlockSharedIdentity();
+    const derived=await deriveConversation(secret);
+    sessionGeneration++; receiveChain=Promise.resolve(); roomSecret=secret; relayTopic=derived.topic;
+    ui.safetyCode.textContent=derived.safety; clearMessages(); setJoined(true); ui.roomBadge.textContent='Room '+secret.slice(0,7)+'…';
+    stripSensitiveFragment(); connectStream(); if(isMobileLayout())setPanelCollapsed(true); ui.message.focus();
+  } catch(err) { console.error(err); alert('Could not enter the room: '+(err.message||err)); setStatus('Error','bad'); }
+  finally { ui.join.disabled=false; }
+}
+function setPanelCollapsed(collapsed) { ui.sidebar.classList.toggle('collapsed',collapsed); ui.panelToggle.setAttribute('aria-expanded',String(!collapsed)); }
+function isMobileLayout() { return window.matchMedia('(max-width:780px)').matches; }
+function clearCryptoState() { sharedPrivateKey=null; sharedPublicKey=null; sharedFingerprintRaw=''; }
+function leaveRoom() {
+  sessionGeneration++; receiveChain=Promise.resolve(); if(eventSource){eventSource.close();eventSource=null;}
+  relayTopic=''; roomSecret=''; clearMessages(); setJoined(false); ui.safetyCode.textContent='—'; setStatus('Ready'); stripSensitiveFragment(); setPanelCollapsed(false); clearCryptoState();
+}
+async function sendMessage() {
+  if(!joined||!sharedPrivateKey||!sharedPublicKey||!relayTopic) return;
+  const text=ui.message.value.trim(); if(!text)return; ui.send.disabled=true;
+  try {
+    const payload={v:2,id:makeUuid(),sid:deviceId,name:ui.name.value.trim().slice(0,40),text,time:Date.now()};
+    const envelope=await encryptEnvelope(payload); const bytes=new Blob([envelope]).size;
+    if(bytes>MAX_RELAY_BYTES) throw new Error(`The OpenPGP envelope is ${bytes} bytes, above the safe NTFY message limit used by this app. Shorten the message and try again.`);
+    const controller=new AbortController(); const timeout=setTimeout(()=>controller.abort(),15000); let res;
+    try { res=await fetch(`${ntfyBase}/${encodeURIComponent(relayTopic)}`,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:envelope,signal:controller.signal,cache:'no-store',referrerPolicy:'no-referrer'}); }
+    finally { clearTimeout(timeout); }
+    if(!res.ok) { let detail=''; try{detail=await res.text();}catch{} if(res.status===429)throw new Error('NTFY rate limit reached. Wait before sending again.'); throw new Error(`Relay returned HTTP ${res.status}${detail?': '+detail.slice(0,160):''}`); }
+    ui.message.value=''; resizeComposer(); ui.message.focus();
+  } catch(err) { console.error(err); const detail=(err&&err.name==='AbortError')?'Relay request timed out.':(err.message||err); alert('Message was not sent: '+detail); }
+  finally { ui.send.disabled=false; }
+}
+function resizeComposer() { ui.message.style.height='auto'; ui.message.style.height=Math.min(140,ui.message.scrollHeight)+'px'; }
+async function generateKeyPair() {
+  ensureOpenPGP(); const name=ui.name.value.trim().slice(0,40);
+  if(!name) return alert('Enter a display name first; it will be used as the OpenPGP user ID.');
+  ui.generateKeyPair.disabled=true; setStatus('Generating shared PGP key…');
+  try {
+    const passphrase=ui.keyPassphrase.value; const options={type:'ecc',curve:'curve25519',userIDs:[{name}],format:'armored'};
+    if(passphrase) options.passphrase=passphrase;
+    const out=await openpgp.generateKey(options);
+    generatedPrivateArmored=out.privateKey; generatedRevocationCertificate=out.revocationCertificate||'';
+    ui.privateKeyArmored.value=generatedPrivateArmored; ui.generatedKeyActions.classList.remove('hidden');
+    await unlockSharedIdentity(); showToast('Shared OpenPGP private key generated — save it securely'); setStatus('Ready');
+  } catch(err) { console.error(err); alert('Key generation failed: '+(err.message||err)); setStatus('Error','bad'); }
+  finally { ui.generateKeyPair.disabled=false; }
+}
+
+ui.newRoom.addEventListener('click',createRoom);
+ui.loadPrivateFile.addEventListener('click',()=>ui.privateKeyFile.click());
+ui.privateKeyFile.addEventListener('change',async()=>{
+  try { ui.privateKeyArmored.value=await importPrivateKeyFile(ui.privateKeyFile.files[0]); clearCryptoState(); ui.sharedFingerprint.textContent='Shared-key fingerprint: —'; ui.sharedFingerprint.classList.remove('good'); showToast('Shared private key loaded'); }
+  catch(err){ alert('Could not load private key: '+(err.message||err)); }
+  finally { ui.privateKeyFile.value=''; }
+});
+ui.clearPrivate.addEventListener('click',()=>{ ui.privateKeyArmored.value=''; ui.keyPassphrase.value=''; clearCryptoState(); ui.sharedFingerprint.textContent='Shared-key fingerprint: —'; ui.sharedFingerprint.classList.remove('good'); });
+ui.privateKeyArmored.addEventListener('input',()=>{ clearCryptoState(); ui.sharedFingerprint.textContent='Shared-key fingerprint: —'; ui.sharedFingerprint.classList.remove('good'); });
+ui.showKeyPassphrase.addEventListener('click',()=>ui.keyPassphrase.type=ui.keyPassphrase.type==='password'?'text':'password');
+ui.unlockSharedKey.addEventListener('click',async()=>{ try{await unlockSharedIdentity();showToast('Shared private key unlocked locally');}catch(err){alert('Could not unlock private key: '+(err.message||err));} });
+ui.generateKeyPair.addEventListener('click',generateKeyPair);
+ui.savePrivateKey.addEventListener('click',()=>{ const txt=generatedPrivateArmored||ui.privateKeyArmored.value.trim(); if(!txt)return alert('No private key is available.'); downloadText(safeFileStem(ui.name.value)+'-shared-private.asc',txt); });
+ui.saveRevocation.addEventListener('click',()=>{ if(!generatedRevocationCertificate)return alert('No revocation certificate is available in this session.'); downloadText(safeFileStem(ui.name.value)+'-revocation.asc',generatedRevocationCertificate,'text/plain'); });
+ui.copyLink.addEventListener('click',async()=>{ try{const u=inviteUrl();await copyText(u);showToast('Room invite copied — private key not included');}catch(err){alert('Could not create invite: '+(err.message||err));} });
+ui.copyCode.addEventListener('click',async()=>{const r=cleanRoom(ui.room.value);if(!r)return;await copyText(r);showToast('Room code copied');});
+ui.join.addEventListener('click',joinRoom); ui.leave.addEventListener('click',leaveRoom); ui.send.addEventListener('click',sendMessage);
+ui.message.addEventListener('input',resizeComposer);
+ui.message.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!ui.send.disabled)sendMessage();}});
+ui.room.addEventListener('input',()=>{const r=cleanRoom(ui.room.value);ui.shareCard.classList.toggle('hidden',!r);});
+ui.server.addEventListener('change',()=>{try{const b=normalizeServer(ui.server.value);ui.server.value=b;ui.serverBadge.textContent='relay: '+displayServer(b);}catch(err){alert(err.message||String(err));}});
+ui.openRelay.addEventListener('click',()=>{const u=relayTopicUrl();if(u)window.open(u,'_blank','noopener,noreferrer');});
+ui.copyRelay.addEventListener('click',async()=>{const u=relayTopicUrl();if(!u)return;await copyText(u);showToast('Relay URL copied');});
+ui.openRawRelay.addEventListener('click',()=>{const u=relayRawUrl();if(u)window.open(u,'_blank','noopener,noreferrer');});
+ui.aboutBtn.addEventListener('click',()=>ui.about.showModal()); ui.closeAbout.addEventListener('click',()=>ui.about.close());
+ui.panelToggle.addEventListener('click',()=>setPanelCollapsed(!ui.sidebar.classList.contains('collapsed')));
+window.addEventListener('beforeunload',()=>{sessionGeneration++;if(eventSource)eventSource.close();clearCryptoState();ui.keyPassphrase.value='';});
+
+readRoomHash(); setJoined(false);
+if(!crypto.subtle)setStatus('HTTPS required','bad');
+else if(!window.openpgp)setStatus('OpenPGP library blocked','bad');
+else setStatus('Ready');
+</script>
+
+</body>
+</html>
