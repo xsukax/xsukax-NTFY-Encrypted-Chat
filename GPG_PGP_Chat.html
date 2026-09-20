@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0d1117">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://unpkg.com/openpgp@5.10.2/dist/openpgp.min.js; style-src 'unsafe-inline'; connect-src https: http://localhost:* http://127.0.0.1:*; img-src data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://unpkg.com/openpgp@6.3.1/dist/openpgp.min.js; style-src 'unsafe-inline'; connect-src https: http://localhost:* http://127.0.0.1:*; img-src data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>xsukax NTFY GPG/PGP Encrypted Chat</title>
 
 <style>
@@ -567,7 +567,7 @@ hr{
     <summary class="small" style="cursor:pointer">Technical details</summary>
     <div class="kv" style="margin-top:9px">
       <b>Protocol</b><span>xsukax NTFY PGP chat v1</span>
-      <b>OpenPGP</b><span>OpenPGP.js 5.10.2</span>
+      <b>OpenPGP</b><span>OpenPGP.js 6.3.1 (RFC 9580-capable)</span>
       <b>Encryption</b><span>One shared private key is supplied by both users; its public component is derived internally for OpenPGP encryption</span>
       <b>Signing</b><span>Messages are signed with the same shared private key; signatures authenticate the shared key, not an individual participant</span>
       <b>Key types</b><span>Compatible OpenPGP private keys supported by OpenPGP.js; generated keys use Curve25519</span>
@@ -610,14 +610,14 @@ hr{
     <p><b>Identity limitation:</b> because both users possess the same private signing key, an OpenPGP signature can prove only that the message was produced by someone holding the shared key. It cannot cryptographically distinguish user A from user B. The displayed name and per-session sender marker are convenience metadata inside the encrypted payload.</p>
     <p><b>Key distribution:</b> never put the private key or passphrase in the room invite. Transfer them to the other participant through a separate trusted channel. Anyone obtaining the shared private key can read existing relay history that was encrypted to that key and can generate valid messages.</p>
     <p><b>Metadata:</b> NTFY can still observe network metadata, the derived topic, message times and ciphertext sizes. It does not receive the private key or plaintext from this app.</p>
-    <p><b>CDN trust:</b> this build loads pinned OpenPGP.js 5.10.2 from unpkg. For higher assurance, self-host the reviewed library and tighten the Content Security Policy.</p>
+    <p><b>CDN trust:</b> this build loads the pinned OpenPGP.js 6.3.1 browser bundle from unpkg. Version 6.3.1 is a current stable v6 release and includes the security fix introduced in v6.1.1 for CVE-2025-47934. For higher assurance, self-host the reviewed pinned bundle and tighten the Content Security Policy.</p>
     <p><b>Relay availability:</b> public ntfy.sh has rate limits and no uptime guarantee. You can use your own HTTPS-compatible NTFY server.</p>
   </div>
 </dialog>
 
 
 
-<script src="https://unpkg.com/openpgp@5.10.2/dist/openpgp.min.js"></script>
+<script src="https://unpkg.com/openpgp@6.3.1/dist/openpgp.min.js" referrerpolicy="no-referrer" crossorigin="anonymous"></script>
 <script>
 "use strict";
 
@@ -739,7 +739,7 @@ function showToast(text='Copied') {
   toastTimer=setTimeout(()=>toast.classList.remove('show'),1500);
 }
 function ensureOpenPGP() {
-  if(!window.openpgp) throw new Error('OpenPGP.js 5.10.2 did not load. Check network/CSP or self-host the pinned library.');
+  if(!window.openpgp) throw new Error('OpenPGP.js 6.3.1 did not load. Check network/CSP or self-host the pinned library.');
 }
 
 async function parseSharedPrivateKey() {
