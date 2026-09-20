@@ -58,6 +58,40 @@ No installation, package manager, framework, account, API key, or application se
 * 🚫 No registration or user accounts
 * 📦 Entire application contained in one `index.html`
 
+### 🔐 OpenPGP / GPG Features
+
+* 🔏 OpenPGP / PGP message encryption using `OpenPGP.js 5.10.2`
+* 🔑 Shared OpenPGP private-key mode for both chat participants
+* 🗝️ No separate public-key import or exchange required
+* 🔄 Public key component derived internally from the shared private key
+* 🔓 Support for passphrase-less OpenPGP private keys
+* 🔐 Support for passphrase-protected OpenPGP private keys
+* 🧠 Private-key passphrases are used locally and are never sent to ntfy
+* ✍️ OpenPGP message signing using the shared private key
+* ✅ OpenPGP signature verification for received messages
+* 📦 Binary OpenPGP message packets wrapped in Base64URL for ntfy transport
+* 🏷️ Encrypted relay messages use the `xpgp1.` envelope prefix
+* 🧬 Built-in ECC / Curve25519 OpenPGP key generation
+* 📥 Import ASCII-armored `.asc` private keys
+* 📥 Import binary `.pgp` and `.gpg` private-key files
+* 💾 Save generated private keys locally
+* 📜 Generate and save an OpenPGP revocation certificate
+* 🧹 Private keys are not stored in `localStorage`
+* 🧹 Private-key passphrases are cleared after unlocking
+* 🧪 OpenPGP key validation before joining an encrypted room
+* 🔍 Display the OpenPGP key fingerprint for verification
+* 🛡️ Conversation verification code derived from the room and PGP key fingerprint
+* 🔒 Invite links never contain the private key or private-key passphrase
+* 🔗 PGP room invitation links contain only the ntfy server and random room secret
+* 📨 Message text, display name, sender metadata, and timestamp are encrypted inside the OpenPGP payload
+* 🔐 NTFY acts only as the encrypted transport relay and cannot read the chat plaintext
+* 🎲 Cryptographically secure random values generated with `crypto.getRandomValues()`
+* #️⃣ SHA-256 used for room-topic derivation and conversation verification
+* 🌐 HTTPS required for remote ntfy servers
+* 🏠 HTTP allowed only for `localhost` / `127.0.0.1`
+* 🧱 Content Security Policy configured for the pinned OpenPGP.js dependency
+* 📡 OpenPGP-encrypted messages remain compatible with ntfy SSE streaming and recent-history retrieval
+
 ---
 
 ## 🔐 Encryption
