@@ -8,6 +8,7 @@ A lightweight, account-free, end-to-end encrypted chat client that uses [ntfy](h
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-2ea44f)](https://xsukax.github.io/xsukax-NTFY-Encrypted-Chat/)
 
 ### 🌐 [Open Live Demo](https://xsukax.github.io/xsukax-NTFY-Encrypted-Chat/)
+### 🌐 [Open GPG / PGP Live Demo](https://xsukax.github.io/xsukax-NTFY-Encrypted-Chat/GPG_PGP_Chat.html)
 
 ---
 
